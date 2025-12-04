@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "PhishBuster",
+  "version": "1.0",
+  "description": "AI-based phishing email detector",
+  
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "PhishBuster"
+  },
+
+  "permissions": ["activeTab", "scripting"]
+}

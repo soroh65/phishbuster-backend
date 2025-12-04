@@ -1,0 +1,206 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PhishBuster</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg: #f5f7ff;
+      --card: #ffffff;
+      --muted: #6b7280;
+      --accent1: #4d6aff;
+      --accent2: #6c87ff;
+      --danger: #ea4335;
+      --safe: #16a34a;
+      --glass: rgba(255,255,255,0.6);
+      --text: #0b1220;
+    }
+    [data-theme="dark"]{
+      --bg: #071026;
+      --card: #091426;
+      --muted: #aeb6c1;
+      --accent1: #5a77ff;
+      --accent2: #748cff;
+      --danger: #ff6b6b;
+      --safe: #34d399;
+      --glass: rgba(10,12,16,0.5);
+      --text: #ecf0ff;
+    }
+
+    html,body{
+      margin:0;padding:0;
+      font-family:"Poppins",sans-serif;
+      background: linear-gradient(135deg,var(--bg), #ffffff);
+      color:var(--text);
+      width:360px;
+      box-sizing:border-box;
+    }
+
+    .wrap{padding:14px;}
+
+    .top {
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+    }
+
+    .brand {
+      display:flex;align-items:center;gap:10px;
+    }
+
+    .logo {
+      width:40px;height:40px;border-radius:8px;overflow:hidden;
+      background:linear-gradient(135deg,var(--accent1),var(--accent2));
+      display:flex;align-items:center;justify-content:center;color:white;font-weight:700;flex:0 0 40px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    }
+    .logo img{ width:100%;height:100%;object-fit:cover;display:block; }
+
+    .title { font-weight:700;font-size:16px; }
+    .subtitle { font-size:11px;color:var(--muted); margin-top:2px; }
+
+    .mode-toggle {display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+    .mode-toggle input{ width:16px;height:16px; }
+
+    .card {
+      margin-top:12px;padding:12px;border-radius:14px;background:var(--card);
+      box-shadow: 0 8px 24px rgba(13,16,30,0.06);
+    }
+
+    textarea{
+      width:100%;height:120px;padding:12px;border-radius:10px;border:1px solid rgba(100,110,220,0.10);
+      resize:none;font-size:13px;background:transparent;color:inherit;outline:none;box-sizing:border-box;
+    }
+
+    .actions {display:flex;gap:8px;margin-top:12px;}
+    .btn {
+      flex:1;padding:12px;border-radius:10px;border:0;cursor:pointer;
+      background:linear-gradient(90deg,var(--accent1),var(--accent2));color:white;font-weight:700;
+      box-shadow:0 8px 20px rgba(77,106,255,0.18);
+    }
+    .btn.secondary{
+      background:transparent;color:var(--muted);border:1px solid rgba(100,110,220,0.08);box-shadow:none;font-weight:600;
+    }
+
+    .result-area{display:none;margin-top:12px;gap:10px}
+    .result-card{padding:12px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.4));}
+    .result-row{display:flex;align-items:center;gap:10px}
+    .radar { width:80px;height:80px;border-radius:50%;position:relative;background:radial-gradient(circle at center, rgba(77,106,255,0.06), transparent 45%);overflow:hidden;flex:0 0 80px;}
+    .radar::before{ content:"";position:absolute;left:0;top:0;width:200%;height:200%;background:conic-gradient(rgba(77,106,255,0.07), transparent 10%);transform-origin:center;animation:spin 3s linear infinite;}
+    .pulse{ position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:12px;height:12px;border-radius:50%;background:var(--accent1);box-shadow:0 8px 30px rgba(77,106,255,0.25); transition:width 300ms, height 300ms, box-shadow 300ms;}
+    @keyframes spin{ to{ transform: rotate(360deg);} }
+
+    .score-block{flex:1}
+    .pred { font-weight:700; font-size:13px; }
+    .meta { font-size:12px;color:var(--muted);margin-top:6px;}
+    .score-row{display:flex;align-items:center;gap:8px;margin-top:8px}
+    .num { font-weight:800;font-size:18px;width:36px;text-align:center; }
+    .bar { flex:1;height:12px;border-radius:8px;background:linear-gradient(90deg,#eef3ff,#f7f9ff);overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,0.6); }
+    .fill{ height:100%; width:0%; background:linear-gradient(90deg,var(--danger),#ffb4b4); transition:width 700ms ease, background 700ms ease; }
+
+    .badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .badge{background:transparent;border-radius:8px;padding:6px 8px;font-weight:600;border:1px solid rgba(0,0,0,0.04);font-size:12px;color:var(--muted)}
+
+    .keywords{margin-top:10px;display:flex;flex-wrap:wrap;gap:8px}
+    .kw{padding:6px 8px;border-radius:8px;background:linear-gradient(90deg,#fff6e8,#fffdf7);font-weight:600;font-size:12px;color:#a15b00;border:1px solid rgba(0,0,0,0.03)}
+
+    .urls{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+    .url { padding:8px;border-radius:8px;background:linear-gradient(90deg,#fff,#fbfbff);display:flex;justify-content:space-between;align-items:center;font-size:13px }
+    .url.danger{ background:#ffecec;color:#a10000;border:1px solid rgba(255,80,80,0.08)}
+    .url.safe{ background:#ecfff1;color:#0b7a3f;border:1px solid rgba(10,160,80,0.06)}
+
+    .highlightPreview{ margin-top:10px;padding:8px;border-radius:8px;background:rgba(0,0,0,0.02);max-height:110px;overflow:auto;font-size:13px;white-space:pre-wrap}
+
+    .export-row{display:flex;justify-content:space-between;gap:8px;margin-top:10px}
+    .link-btn{background:transparent;border:0;color:var(--accent1);font-weight:700;cursor:pointer}
+
+    /* confetti helper (absolute overlay) */
+    .confetti-wrap{ position:fixed; right:0; left:0; top:0; bottom:0; pointer-events:none; }
+
+    /* shake on danger */
+    .shake {
+      animation: shake 600ms;
+    }
+    @keyframes shake {
+      10%, 90% { transform: translateX(-1px); }
+      20%, 80% { transform: translateX(2px); }
+      30%, 50%, 70% { transform: translateX(-4px); }
+      40%, 60% { transform: translateX(4px); }
+    }
+
+    /* small text */
+    .small { font-size:12px;color:var(--muted) }
+  </style>
+</head>
+<body>
+  <div class="wrap" id="root" data-theme="light">
+    <div class="top">
+      <div class="brand">
+        <div class="logo" id="logoBox">
+          <img id="logoImg" src="logo.png" style="display:none" alt="logo"/>
+          <div id="logoLetters">PB</div>
+        </div>
+        <div>
+          <div class="title">PhishBuster</div>
+          <div class="subtitle">AI-powered threat filter</div>
+        </div>
+      </div>
+
+      <div class="mode-toggle">
+        <label for="mode">Dark</label>
+        <input id="mode" type="checkbox" />
+      </div>
+    </div>
+
+    <div class="card">
+      <textarea id="emailText" placeholder="Paste email content here..."></textarea>
+
+      <div class="actions">
+        <button class="btn" id="checkBtn">Check Email</button>
+        <button class="btn secondary" id="clearBtn">Clear</button>
+      </div>
+
+      <div class="result-area" id="resultArea">
+        <div class="result-card" id="resultCard">
+          <div class="result-row">
+            <div class="radar"><div class="pulse" id="pulse"></div></div>
+
+            <div class="score-block">
+              <div class="pred" id="predText">Prediction: —</div>
+              <div class="meta small" id="metaText">Model + heuristics</div>
+
+              <div class="score-row">
+                <div class="num" id="scoreNum">0</div>
+                <div class="bar" aria-hidden="true"><div class="fill" id="scoreFill"></div></div>
+              </div>
+
+              <div class="badges" id="badges"></div>
+            </div>
+          </div>
+
+          <div class="keywords" id="keywords"></div>
+
+          <div class="muted small" style="margin-top:8px">Detected URLs</div>
+          <div class="urls" id="urls"></div>
+
+          <div class="muted small" style="margin-top:8px">Preview (keywords highlighted)</div>
+          <div class="highlightPreview" id="previewText"></div>
+
+          <div class="export-row">
+            <button class="btn secondary" id="exportPdf">Export PDF</button>
+            <button class="btn secondary" id="copyReport">Copy Report</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- confetti and pdf -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

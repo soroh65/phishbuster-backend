@@ -1,6 +1,7 @@
 // popup.js - full-featured UI (confetti, shake, PDF, highlighting, url scan, dark persist)
 
-const API = "https://phishbuster-backend-production.up.railway.app/predict";
+const API = "https://phishbuster-backend-production.up.railway.app";
+
 
 const KEYWORDS = [
   "verify","password","bank","account","login","click","urgent",

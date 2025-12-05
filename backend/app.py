@@ -6,48 +6,51 @@ import os
 app = Flask(__name__)
 CORS(app)
 
-# -------------------------------
-# Load the ML model safely
-# -------------------------------
+# ---------------------------------------
+# HOME ROUTE (fixes Railway 404 error)
+# ---------------------------------------
+@app.route("/", methods=["GET"])
+def home():
+    return {"message": "PhishBuster backend is running!"}
+
+
+# ---------------------------------------
+# LOAD MODEL SAFELY
+# ---------------------------------------
 try:
     MODEL_PATH = os.path.join(os.path.dirname(__file__), "model.pkl")
+    print("MODEL PATH:", MODEL_PATH)
+
     model = joblib.load(MODEL_PATH)
     print("MODEL LOADED SUCCESSFULLY")
+
 except Exception as e:
     print("FAILED TO LOAD MODEL:", str(e))
     model = None
 
 
-# -------------------------------
-# API ROUTES
-# -------------------------------
-
-@app.route("/")
-def home():
-    return jsonify({"message": "PhishBuster backend is running!"})
-
-
+# ---------------------------------------
+# PREDICT ENDPOINT
+# ---------------------------------------
 @app.route("/predict", methods=["POST"])
 def predict():
     if model is None:
-        return jsonify({"error": "MODEL NOT LOADED"}), 500
+        return jsonify({"error": "Model not loaded on server"}), 500
 
-    data = request.get_json()
-
-    if not data or "text" not in data:
-        return jsonify({"error": "Missing 'text' field"}), 400
-
-    email_text = data["text"]
+    data = request.json.get("text", "")
+    if not data:
+        return jsonify({"error": "No text provided"}), 400
 
     try:
-        prediction = model.predict([email_text])[0]
+        prediction = model.predict([data])[0]
         return jsonify({"prediction": prediction})
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 
-# -------------------------------
-# Run the app
-# -------------------------------
+# --------------------------------------
+# RUN LOCALLY (Railway uses Gunicorn)
+# --------------------------------------
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000)
+    app.run(host="0.0.0.0", port=5000)

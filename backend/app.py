@@ -7,18 +7,16 @@ CORS(app)
 
 MODEL_PATH = "model.pkl"
 
-
-
-
 # -----------------------
 # Load the ML model safely
 # -----------------------
 try:
     model = joblib.load(MODEL_PATH)
-    print("MODEL LOADED SUCCESSFULLY!")
+    print("MODEL LOADED SUCCESSFULLY")
 except Exception as e:
-    print("FAILED TO LOAD MODEL:", e)
+    print("FAILED TO LOAD MODEL:", str(e))
     model = None
+
 
 
 # -----------------------

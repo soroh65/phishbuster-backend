@@ -5,7 +5,7 @@ import joblib
 app = Flask(__name__)
 CORS(app)
 
-MODEL_PATH = "../model.pkl"
+MODEL_PATH = "model.pkl"
 
 
 
